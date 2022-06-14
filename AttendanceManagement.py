@@ -16,6 +16,17 @@ def get_staff_member(id: int):
             return member
 
 
+def printDatabase():
+    for grade in database.keys():
+        print("----------------------GRADE:", grade, "----------------------")
+        for section in database[grade]:
+            print(section + ": ", end=" ")
+            for students in database[grade][section]:
+                print(students, end=" ")
+            print("\n", end="")
+        print()
+
+
 class UserType(Enum):
     ADMIN = 1
     STAFF = 2
@@ -98,46 +109,45 @@ class Admin(User):
 
 admin_1 = Admin(1, "Admin1", UserType.ADMIN)
 staff_1 = Staff(2, "User1", UserType.STAFF)
-staff_members.append(admin_1)
-staff_members.append(staff_1)
 
 admin_1.allocate_staff(staff_1, 2, "b")
 
-admin_1.add_grade(1)
-admin_1.add_section(1, "a")
-admin_1.add_student(1, "a", 1)
-admin_1.add_student(1, "a", 2)
-admin_1.add_student(1, "a", 3)
-admin_1.add_student(1, "a", 4)
-admin_1.add_student(1, "a", 5)
-admin_1.add_student(1, "a", 6)
+staff_members.append(admin_1)
+staff_members.append(staff_1)
 
-admin_1.add_section(1, "b")
-admin_1.add_student(1, "b", 7)
-admin_1.add_student(1, "b", 8)
-admin_1.add_student(1, "b", 9)
-admin_1.add_student(1, "b", 10)
-admin_1.add_student(1, "b", 11)
-admin_1.add_student(1, "b", 12)
 
-admin_1.add_grade(2)
-admin_1.add_section(2, "b")
-admin_1.add_student(2, "b", 13)
-admin_1.add_student(2, "b", 14)
-admin_1.add_student(2, "b", 15)
-admin_1.add_student(2, "b", 16)
-admin_1.add_student(2, "b", 17)
-admin_1.add_student(2, "b", 18)
+def populateDatabase():
+    sections = 97  # a
+    id = 1
+    students_per_section = [80, 90, 36, 39]
+    for grade in range(1, 5):
+        admin_1.add_grade(grade)
+        admin_1.add_section(grade, chr(sections))
+        for students in range(1, students_per_section[grade - 1]):
+            if students % 20 == 0:
+                sections += 1
+                admin_1.add_section(grade, chr(sections))
 
-print(database)
+            admin_1.add_student(grade, chr(sections), id)
+            id += 1
+        sections = 97
 
-missing_students = [13, 15, 18]
-staff_1.set_missing_students(2, "b", missing_students)
-missing_students = [13, 15]
-staff_1.set_missing_students(2, "b", missing_students)
-print(attendance)
 
-staff_1.show_weekly_attendance(13, 3)
+def populateAttendance():
+    missing_students = [13, 15, 18]
+    staff_1.set_missing_students(2, "b", missing_students)
+    missing_students = [13, 15]
+    staff_1.set_missing_students(2, "b", missing_students)
+
+
+populateDatabase()
+# print(database)
+printDatabase()
+
+
+# print(attendance)
+
+# staff_1.show_weekly_attendance(13, 3)
 
 
 def menu():
@@ -154,7 +164,7 @@ def admin_menu():
         print("")
         print(database)
         print("")
-        print("1) To add grade 2) To add section 3) To add students 4) To allocate staff 9) To exit ")
+        print("1) To add grade \n2) To add section \n3) To add students \n4) To allocate staff \n9) To exit ")
         choice = int(input("What admin command would you like to perform? "))
         if choice == 9:
             return
@@ -188,5 +198,3 @@ def admin_menu():
                 admin_1.allocate_staff(staff_to_add, grade_to_add_to, section_to_add_to)
             except Exception as e:
                 print("There has been an error, please try again" + e)
-
-
