@@ -66,14 +66,18 @@ class Staff(User):
         self.__allocated_section[0] = grade
         self.__allocated_section[1] = section_name
 
-    def set_missing_students(self, grade: int, section: str, missing_students: []):
+    def set_missing_students(self, missing_students: []):
         # if self.__allocated_section != "":
-        if grade != self.__allocated_section[0] or section != self.__allocated_section[1]:
-            print("You are allocated to:\ngroup %d \tsection %s" % (
-                self.__allocated_section[0], self.__allocated_section[1]))
-            return
+        for missing_student in missing_students:
+            if missing_student not in database[self.__allocated_section[0]][self.__allocated_section[1]]:
+                print("ID %d is not allocated to your section" % missing_student)
+                print("Your section student IDs are: ")
+                for student_ID in database[self.__allocated_section[0]][self.__allocated_section[1]]:
+                    print(student_ID, end=", ")
+                print()
+                return
         else:
-            attendance[grade][section].append(missing_students)
+            attendance[self.__allocated_section[0]][self.__allocated_section[1]].append(missing_students)
 
     def showAttendance(self, student_id: int, time_span: int):
         missing_attendance = 0
@@ -84,7 +88,7 @@ class Staff(User):
                     missing_attendance += 1
                     break
             if _time_span == time_span:
-                print("Student with ID: ", student_id, " was missing ", missing_attendance, " times")
+                print("Student with ID: ", student_id, " was missing ", missing_attendance, " times this", )
                 return
             _time_span += 1
         else:
@@ -110,7 +114,7 @@ class Admin(User):
         if user_type == UserType.ADMIN:
             return Admin(id, name, user_type)
         else:
-            return Staff(id,name,user_type)
+            return Staff(id, name, user_type)
 
     def allocate_staff(self, staff: Staff, grade: int, section_name: str):
         staff.set_allocation(grade, section_name)
@@ -118,7 +122,6 @@ class Admin(User):
 
 admin_1 = Admin(1, "Admin1", UserType.ADMIN)
 staff_1 = admin_1.add_staff_member(2, "User1", UserType.STAFF)
-
 
 admin_1.allocate_staff(staff_1, 1, "a")
 
@@ -150,18 +153,20 @@ def populateDatabase(admin: Admin):
 def populateAttendance():
     for days in range(TimeSpan.MONTH.value * 2):
         missing_students = [13, 15, 18]
-        staff_1.set_missing_students(1, "a", missing_students)
+        staff_1.set_missing_students(missing_students)
         missing_students = [13, 15]
-        staff_1.set_missing_students(1, "a", missing_students)
+        staff_1.set_missing_students(missing_students)
         missing_students = [13]
-        staff_1.set_missing_students(1, "a", missing_students)
+        staff_1.set_missing_students(missing_students)
+        missing_students = []
+        staff_1.set_missing_students(missing_students)
 
 
 populateDatabase(admin_1)
 printDatabase()
 populateAttendance()
 print(attendance)
-staff_1.showAttendance(18, TimeSpan.MONTH.value)
+staff_1.showAttendance(13, TimeSpan.WEEK.value)
 
 
 # print(attendance)
