@@ -43,6 +43,10 @@ class User:
         self.id = id
         self.name = name
         self.type = type
+        staff_members.append(self)
+        print("New staff member added successfully")
+        self.print()
+        print()
 
     def print(self):
         print("Name: %s \tID: %d \tType: %s" % (self.name, self.id, self.type.name))
@@ -64,7 +68,7 @@ class Staff(User):
     def set_missing_students(self, grade: int, section: str, missing_students: []):
         if self.__allocated_section != "":
             if grade != self.__allocated_section[0] or section != self.__allocated_section[1]:
-                print("This staff member is allocated to ", self.__allocated_section)
+                print("You are allocated to:\ngroup %d \tsection %s"%(self.__allocated_section[0],self.__allocated_section[1]))
                 return
             else:
                 attendance[grade][section].append(missing_students)
@@ -112,8 +116,8 @@ staff_1 = Staff(2, "User1", UserType.STAFF)
 
 admin_1.allocate_staff(staff_1, 2, "b")
 
-staff_members.append(admin_1)
-staff_members.append(staff_1)
+
+# print_staff_members()
 
 
 def populateDatabase(admin: Admin):
@@ -145,7 +149,7 @@ def populateAttendance():
 
 
 populateDatabase(admin_1)
-# print(database)
+populateAttendance()
 printDatabase()
 
 
