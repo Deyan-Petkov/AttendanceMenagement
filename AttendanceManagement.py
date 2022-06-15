@@ -67,7 +67,6 @@ class Staff(User):
         self.__allocated_section[1] = section_name
 
     def set_missing_students(self, missing_students: []):
-        # if self.__allocated_section != "":
         for missing_student in missing_students:
             if missing_student not in database[self.__allocated_section[0]][self.__allocated_section[1]]:
                 print("ID %d is not allocated to your section" % missing_student)
@@ -79,7 +78,7 @@ class Staff(User):
         else:
             attendance[self.__allocated_section[0]][self.__allocated_section[1]].append(missing_students)
 
-    def showAttendance(self, student_id: int, time_span: int):
+    def showAttendance(self, student_id: int, time_span: TimeSpan):
         missing_attendance = 0
         _time_span = 1
         for day in attendance[self.__allocated_section[0]][self.__allocated_section[1]]:
@@ -87,12 +86,14 @@ class Staff(User):
                 if missing == student_id:
                     missing_attendance += 1
                     break
-            if _time_span == time_span:
-                print("Student with ID: ", student_id, " was missing ", missing_attendance, " times this", )
+            if _time_span == time_span.value:
+                print("Student with ID: ", student_id, " was missing ", missing_attendance, " times this ",
+                      time_span.name.lower())
                 return
             _time_span += 1
         else:
-            print("Student with ID: ", student_id, " was missing ", missing_attendance, " times")
+            print("Student with ID: ", student_id, " was missing ", missing_attendance, " times this ",
+                  time_span.name.lower())
 
 
 class Admin(User):
@@ -151,7 +152,7 @@ def populateDatabase(admin: Admin):
 
 
 def populateAttendance():
-    for days in range(TimeSpan.MONTH.value * 2):
+    for days in range(TimeSpan.MONTH.value):
         missing_students = [13, 15, 18]
         staff_1.set_missing_students(missing_students)
         missing_students = [13, 15]
@@ -163,15 +164,12 @@ def populateAttendance():
 
 
 populateDatabase(admin_1)
-printDatabase()
+# printDatabase()
 populateAttendance()
-print(attendance)
-staff_1.showAttendance(13, TimeSpan.WEEK.value)
 
 
 # print(attendance)
-
-# staff_1.showAttendance(13, 3)
+# staff_1.showAttendance(13, TimeSpan.MONTH)
 
 
 def menu():
