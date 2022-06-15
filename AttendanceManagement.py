@@ -172,51 +172,51 @@ populateAttendance()
 # staff_1.showAttendance(13, TimeSpan.MONTH)
 
 
-def menu():
+def staff_menu():
+    successful_login = False
+    while successful_login == False:
+        try:
+            print("Please enter your staff ID: ")
+            staff_id = int(input("Type -1 to exit: "))
+            if staff_id == -1:
+                break
+            staff_using = get_staff_member(staff_id)
+        except Exception as e:
+            print("There has been an error in your staff ID, please try again.")
+        else:
+            successful_login = True
     choice = 0
     while choice != 9:
-        choice = int(input("1) Admin 2) Staff 9) exit "))
+        print("1) To mark students as absent 2) To show weekly attendance 9) To exit")
+        choice = int(input("What staff command would you like to do? "))
+
         if choice == 1:
-            admin_menu()
-
-
-def admin_menu():
-    choice = 0
-    while choice != 9:
-        print("")
-        print(database)
-        print("")
-        print("1) To add grade \n2) To add section \n3) To add students \n4) To allocate staff \n9) To exit ")
-        choice = int(input("What admin command would you like to perform? "))
-        if choice == 9:
-            return
-        elif choice == 1:
-            grade_to_add = int(input("What grade would you like to add? "))
-            admin_1.add_grade(grade_to_add)
+            successful_absent_mark = False
+            while successful_absent_mark == False:
+                absent_students = []
+                print("Please type the IDs of the absent students. Type -1 when done entering, -2 to exit")
+                absent_student_id = -200
+                while absent_student_id != -1:
+                    absent_student_id = int(input("ID:"))
+                    if absent_student_id == -2:
+                        break
+                    if absent_student_id == -1:
+                        break
+                    absent_students.append(absent_student_id)
+                try:
+                    staff_using.set_missing_students(absent_students)
+                except Exception as e:
+                    print("There has been an error, please try again. " + e)
+                else:
+                    print("Students successfully marked absent.")
+                    successful_absent_mark = True
         elif choice == 2:
-            grade_to_add_to = int(input("Which grade would you like to add the section to? "))
-            section_to_add = input("What is the name of the section you would like to add? ")
+            print("Please enter the student ID of the student whose attendance you would like to see: ")
+            student_id = int(input("Type -1 to exit: "))
+            if student_id == -1:
+                break
+            time_period = TimeSpan(input("What is the time period you would like to see? WEEK, MONTH, YEAR"))
             try:
-                admin_1.add_section(grade_to_add_to, section_to_add)
-            except KeyError as k:
-                print("This grade does not exist, please try again")
-        elif choice == 3:
-            grade_to_add_to = int(input("Which grade would you like to add the student to? "))
-            section_to_add_to = input("Which section would you like to add the student to?")
-            student_id = int(input("Please enter the student ID: "))
-            try:
-                admin_1.add_student(grade_to_add_to, section_to_add_to, student_id)
-            except KeyError:
-                print("There was an error in the grade or section, please try again")
-        elif choice == 4:
-            print("Staff member id's:")
-            print_staff_members()
-            staff_to_add = int((input("What is the staff id of the staff member would you like to allocate? ")))
-            staff_to_add = get_staff_member(staff_to_add)
-
-            grade_to_add_to = int(input("What is the grade you would like to allocate them to? "))
-            section_to_add_to = input("Which section would you like to allocate them to? ")
-            try:
-                admin_1.allocate_staff(staff_to_add, grade_to_add_to, section_to_add_to)
+                staff_using.showAttendance(student_id,time_period)
             except Exception as e:
-                print("There has been an error, please try again" + e)
+                print("There has been an error. Please try again. " + e)
