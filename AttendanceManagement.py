@@ -4,6 +4,9 @@ database = {}
 attendance = {}
 staff_members = []
 
+next_student_id = 0
+next_user_id = 0
+
 
 def print_staff_members():
     for member in staff_members:
@@ -15,6 +18,18 @@ def get_staff_member(id: int):
         print(member)
         if member.id == id:
             return member
+
+
+def getNextStudentID():
+    global next_student_id
+    next_student_id += 1
+    return next_student_id
+
+
+def getNextUserID():
+    global next_user_id
+    next_user_id += 1
+    return next_user_id
 
 
 def printDatabase():
@@ -40,8 +55,8 @@ class TimeSpan(Enum):
 
 
 class User:
-    def __init__(self, id: int, name: str, type: UserType):
-        self.id = id
+    def __init__(self, name: str, type: UserType):
+        self.id = getNextUserID()
         self.name = name
         self.type = type
         staff_members.append(self)
@@ -56,8 +71,8 @@ class User:
 class Staff(User):
     __allocated_section = [0, ""]
 
-    def __init__(self, id: int, name: str, type: UserType):
-        super().__init__(id, name, type)
+    def __init__(self, name: str, type: UserType):
+        super().__init__(name, type)
 
     def get_allocation(self):
         return self.__allocated_section
@@ -76,7 +91,7 @@ class Staff(User):
                 print()
                 return
         else:
-            attendance[self.__allocated_section[0]][self.__allocated_section[1]].append(missing_students)
+            attendance[self.__allocated_section[0]][self.__allocated_section[1]].insert(0, missing_students)
 
     def showAttendance(self, student_id: int, time_span: TimeSpan):
         missing_attendance = 0
@@ -97,8 +112,8 @@ class Staff(User):
 
 
 class Admin(User):
-    def __int__(self, id: int, name: str, type: UserType):
-        super().__init__(id, name, type)
+    def __int__(self, name: str, type: UserType):
+        super().__init__(name, type)
 
     def add_grade(self, grade: int):
         database[grade] = {}
@@ -108,21 +123,21 @@ class Admin(User):
         database[grade][sectionName] = []
         attendance[grade][sectionName] = []
 
-    def add_student(self, grade: int, sectionName: str, id: int):
-        database[grade][sectionName].append(id)
+    def add_student(self, grade: int, sectionName: str):
+        database[grade][sectionName].append(getNextStudentID())
 
-    def add_staff_member(self, id: int, name: str, user_type: UserType):
+    def add_staff_member(self, name: str, user_type: UserType):
         if user_type == UserType.ADMIN:
-            return Admin(id, name, user_type)
+            return Admin(name, user_type)
         else:
-            return Staff(id, name, user_type)
+            return Staff(name, user_type)
 
     def allocate_staff(self, staff: Staff, grade: int, section_name: str):
         staff.set_allocation(grade, section_name)
 
 
-admin_1 = Admin(1, "Admin1", UserType.ADMIN)
-staff_1 = admin_1.add_staff_member(2, "User1", UserType.STAFF)
+admin_1 = Admin("Admin1", UserType.ADMIN)
+staff_1 = admin_1.add_staff_member("User1", UserType.STAFF)
 
 admin_1.allocate_staff(staff_1, 1, "a")
 
@@ -133,7 +148,7 @@ admin_1.allocate_staff(staff_1, 1, "a")
 def populateDatabase(admin: Admin):
     sections = 97  # a
     group = 1
-    id = 1
+    # id = 1
     students_per_section = [80, 90, 36, 39]
     for grade in range(1, 5):
         admin.add_grade(grade)
@@ -144,8 +159,7 @@ def populateDatabase(admin: Admin):
                 admin.add_section(grade, chr(sections))
                 group = 1
 
-            admin.add_student(grade, chr(sections), id)
-            id += 1
+            admin.add_student(grade, chr(sections))
             group += 1
         sections = 97
         group = 1
@@ -164,7 +178,7 @@ def populateAttendance():
 
 
 populateDatabase(admin_1)
-# printDatabase()
+printDatabase()
 populateAttendance()
 
 
@@ -180,6 +194,8 @@ def menu():
             admin_menu()
         if choice == 2:
             staff_menu()
+
+
 def admin_menu():
     choice = 0
     while choice != 9:
@@ -191,6 +207,7 @@ def admin_menu():
         if choice == 9:
             return
         elif choice == 1:
+            
             grade_to_add = int(input("What grade would you like to add? "))
             admin_1.add_grade(grade_to_add)
         elif choice == 2:
@@ -203,9 +220,8 @@ def admin_menu():
         elif choice == 3:
             grade_to_add_to = int(input("Which grade would you like to add the student to? "))
             section_to_add_to = input("Which section would you like to add the student to?")
-            student_id = int(input("Please enter the student ID: "))
             try:
-                admin_1.add_student(grade_to_add_to, section_to_add_to, student_id)
+                admin_1.add_student(grade_to_add_to, section_to_add_to)
             except KeyError:
                 print("There was an error in the grade or section, please try again")
         elif choice == 4:
@@ -220,6 +236,8 @@ def admin_menu():
                 admin_1.allocate_staff(staff_to_add, grade_to_add_to, section_to_add_to)
             except Exception as e:
                 print("There has been an error, please try again" + e)
+
+
 def staff_menu():
     successful_login = False
     while successful_login == False:
@@ -244,12 +262,12 @@ def staff_menu():
                 absent_students = []
                 print("Please type the IDs of the absent students. Type -1 when done entering, -2 to exit")
                 absent_student_id = -200
+                absent_student_id = int(input("ID:"))
                 while absent_student_id != -1:
-                    absent_student_id = int(input("ID:"))
-                    if absent_student_id == -2:
-                        break
+                    # if absent_student_id == -2:
+                    #     break
                     absent_students.append(absent_student_id)
-                absent_students.pop()
+                    absent_student_id = int(input("ID:"))
                 try:
                     staff_using.set_missing_students(absent_students)
                 except Exception as e:
@@ -267,9 +285,10 @@ def staff_menu():
                 time_period = TimeSpan.WEEK
             elif time_period == 2:
                 time_period = TimeSpan.MONTH
-            else: time_period = TimeSpan.YEAR
+            else:
+                time_period = TimeSpan.YEAR
             try:
-                staff_using.showAttendance(student_id,time_period)
+                staff_using.showAttendance(student_id, time_period)
             except Exception as e:
                 print("There has been an error. Please try again. " + e)
 
