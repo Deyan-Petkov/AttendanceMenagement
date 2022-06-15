@@ -116,21 +116,25 @@ staff_members.append(admin_1)
 staff_members.append(staff_1)
 
 
-def populateDatabase():
+def populateDatabase(admin: Admin):
     sections = 97  # a
+    group = 1
     id = 1
     students_per_section = [80, 90, 36, 39]
     for grade in range(1, 5):
-        admin_1.add_grade(grade)
-        admin_1.add_section(grade, chr(sections))
-        for students in range(1, students_per_section[grade - 1]):
-            if students % 20 == 0:
+        admin.add_grade(grade)
+        admin.add_section(grade, chr(sections))
+        for students in range(students_per_section[grade - 1]):
+            if group > 20:
                 sections += 1
-                admin_1.add_section(grade, chr(sections))
+                admin.add_section(grade, chr(sections))
+                group = 1
 
-            admin_1.add_student(grade, chr(sections), id)
+            admin.add_student(grade, chr(sections), id)
             id += 1
+            group += 1
         sections = 97
+        group = 1
 
 
 def populateAttendance():
@@ -140,7 +144,7 @@ def populateAttendance():
     staff_1.set_missing_students(2, "b", missing_students)
 
 
-populateDatabase()
+populateDatabase(admin_1)
 # print(database)
 printDatabase()
 
